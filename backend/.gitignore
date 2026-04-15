@@ -1,0 +1,34 @@
+# ENVIRONMENT VARIABLES
+.env
+.env.*
+!.env.example
+
+# DEPENDENCIES
+node_modules/
+
+# LOGS
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# BUILD FILES
+dist/
+build/
+
+# OS FILES
+.DS_Store
+Thumbs.db
+
+# EDITOR FILES
+.vscode/
+.idea/
+
+# CACHE / TEMP
+.cache/
+.tmp/
+
+# SECURITY
+*.pem
+*.key

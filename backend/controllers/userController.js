@@ -1,72 +1,69 @@
-const User = require('../models/userModel');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+import User from "../models/userModel.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-// Generate JWT token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
-  });
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
 };
 
-// @route   POST /api/users/register
-const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+export const registerUser = async (req, res) => {
   try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+    const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields required" });
     }
-    const user = await User.create({ name, email, password });
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
+
+    const exist = await User.findOne({ email });
+    if (exist) return res.status(400).json({ message: "User exists" });
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashed,
+      role,
     });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
 
-// @route   POST /api/users/login
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
+    const userData = user.toObject();
+    delete userData.password;
+
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
+      token: generateToken(user),
+      user: userData,
     });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// @route   POST /api/users/forgot-password
-const forgotPassword = async (req, res) => {
-  const { email } = req.body;
+export const loginUser = async (req, res) => {
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: 'No account with that email' });
-    }
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await user.save();
+    const { email, password } = req.body;
 
-    // TODO: Send email with reset link
-    // For now just return the token in response (remove in production)
-    res.json({ message: 'Reset token generated', resetToken });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid email" });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(400).json({ message: "Invalid password" });
+
+    const userData = user.toObject();
+    delete userData.password;
+
+    res.json({
+      token: generateToken(user),
+      user: userData,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
-
-module.exports = { registerUser, loginUser, forgotPassword };

@@ -2,14 +2,23 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
     booking: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Booking",
+      required: true,
     },
 
-    amount: Number,
+    amount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
 
     status: {
       type: String,

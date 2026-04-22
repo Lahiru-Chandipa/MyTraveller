@@ -5,17 +5,34 @@ const packageSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
 
     type: {
       type: String,
       enum: ["hotel", "driver", "full"],
+      required: true,
     },
 
-    title: String,
-    description: String,
-    price: Number,
-    duration: Number,
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    duration: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
 
     hotel: {
       type: mongoose.Schema.Types.ObjectId,

@@ -5,14 +5,23 @@ const driverSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
     },
 
-    licenseNumber: String,
-    contact: String,
+    licenseNumber: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    contact: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
     isApproved: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   { timestamps: true }

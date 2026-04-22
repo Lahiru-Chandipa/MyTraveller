@@ -1,6 +1,7 @@
 import express from "express";
 import { createPackage, getPackages } from "../controllers/packageController.js";
-import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { requireProvider } from "../middleware/profileMiddleware.js";
 import upload from "../utils/upload.js";
 
 const router = express.Router();
@@ -8,7 +9,7 @@ const router = express.Router();
 router.post(
   "/",
   protect,
-  authorizeRoles("hotel", "driver"),
+  requireProvider,
   upload.array("images", 5),
   createPackage
 );

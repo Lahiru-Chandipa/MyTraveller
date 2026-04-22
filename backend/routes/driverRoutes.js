@@ -1,9 +1,10 @@
 import express from 'express';
 import { createDriver } from '../controllers/driverController.js';
-import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', protect, authorizeRoles('driver'), createDriver);
+// APPLY AS DRIVER
+router.post('/', protect, createDriver);
 
 export default router;

@@ -2,19 +2,37 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
     type: {
       type: String,
       enum: ["hotel", "driver", "package"],
+      required: true,
     },
 
-    itemId: mongoose.Schema.Types.ObjectId,
+    itemId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
 
-    startDate: Date,
-    endDate: Date,
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+    },
 
-    totalPrice: Number,
+    totalPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
 
     status: {
       type: String,

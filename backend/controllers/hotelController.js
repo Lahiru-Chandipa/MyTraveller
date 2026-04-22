@@ -2,26 +2,49 @@ import Hotel from "../models/hotelModel.js";
 
 export const createHotel = async (req, res) => {
   try {
-    const images = req.files.map(
-      (file) => `http://localhost:5000/${file.path}`
-    );
+    const { name, location, description, contact, pricePerNight } = req.body;
+
+    if (!name || !location || !contact || !pricePerNight) {
+      return res.status(400).json({ message: "Name, location, contact, and pricePerNight are required" });
+    }
+
+    const numericPricePerNight = Number(pricePerNight);
+
+    if (isNaN(numericPricePerNight) || numericPricePerNight <= 0) {
+      return res.status(400).json({ message: "pricePerNight must be a number greater than 0" });
+    }
+
+    const existingHotel = await Hotel.findOne({ user: req.user.id });
+
+    if (existingHotel) {
+      return res.status(400).json({ message: "Hotel profile already exists" });
+    }
+
+    const images = req.files?.length
+      ? req.files.map((f) => `${process.env.BASE_URL}/${f.path}`)
+      : [];
 
     const hotel = await Hotel.create({
       user: req.user.id,
-      name: req.body.name,
-      location: req.body.location,
-      description: req.body.description,
-      contact: req.body.contact,
+      name,
+      location,
+      description,
+      contact,
+      pricePerNight: numericPricePerNight,
       images,
     });
 
-    res.json(hotel);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(201).json(hotel);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
 export const getHotels = async (req, res) => {
-  const hotels = await Hotel.find();
-  res.json(hotels);
+  try {
+    const hotels = await Hotel.find();
+    res.json(hotels);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

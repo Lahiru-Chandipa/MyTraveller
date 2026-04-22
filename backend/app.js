@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
@@ -11,8 +12,9 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
+const corsOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
@@ -25,5 +27,19 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use('/uploads', express.static('uploads'));
+
+app.use((err, req, res, next) => {
+  if (!err) return next();
+
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ message: 'File size must be 5MB or smaller' });
+  }
+
+  if (err.message === 'Only images allowed') {
+    return res.status(400).json({ message: err.message });
+  }
+
+  return res.status(500).json({ message: err.message || 'Server error' });
+});
 
 export default app;

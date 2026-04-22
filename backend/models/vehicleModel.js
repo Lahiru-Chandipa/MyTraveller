@@ -5,12 +5,29 @@ const vehicleSchema = new mongoose.Schema(
     driver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Driver',
+      required: true,
     },
 
-    type: String,
-    model: String,
-    capacity: Number,
-    pricePerDay: Number,
+    type: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    model: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    capacity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    pricePerDay: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
 
     images: [String],
     isAvailable: {

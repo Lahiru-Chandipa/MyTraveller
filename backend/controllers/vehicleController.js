@@ -1,29 +1,39 @@
 import Vehicle from "../models/vehicleModel.js";
-import Driver from "../models/driverModel.js";
 
 export const createVehicle = async (req, res) => {
   try {
-    const driver = await Driver.findOne({ user: req.user.id });
+    const { type, model, capacity, pricePerDay } = req.body;
 
-    if (!driver) {
-      return res.status(404).json({ message: "Driver not found" });
+    if (!type || !model || !capacity || !pricePerDay) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    const images = req.files.map(
-      (file) => `http://localhost:5000/${file.path}`
-    );
+    const numericCapacity = Number(capacity);
+    const numericPricePerDay = Number(pricePerDay);
+
+    if (isNaN(numericCapacity) || isNaN(numericPricePerDay)) {
+      return res.status(400).json({ message: "Capacity and pricePerDay must be numbers" });
+    }
+
+    if (numericCapacity <= 0 || numericPricePerDay <= 0) {
+      return res.status(400).json({ message: "Capacity and pricePerDay must be greater than 0" });
+    }
+
+    const images = req.files?.length
+      ? req.files.map((f) => `${process.env.BASE_URL}/${f.path}`)
+      : [];
 
     const vehicle = await Vehicle.create({
-      driver: driver._id,
-      type: req.body.type,
-      model: req.body.model,
-      capacity: req.body.capacity,
-      pricePerDay: req.body.pricePerDay,
+      driver: req.driver._id,
+      type,
+      model,
+      capacity: numericCapacity,
+      pricePerDay: numericPricePerDay,
       images,
     });
 
-    res.json(vehicle);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(201).json(vehicle);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

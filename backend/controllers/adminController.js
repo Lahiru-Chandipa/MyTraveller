@@ -63,7 +63,14 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-
+export const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find().populate("user");
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 // APPROVE DRIVER
 export const approveDriver = async (req, res) => {

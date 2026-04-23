@@ -1,21 +1,7 @@
 import Driver from "../models/driverModel.js";
 import Hotel from "../models/hotelModel.js";
 
-// DRIVER ACCESS
-export const requireDriver = async (req, res, next) => {
-  try {
-    const driver = await Driver.findOne({ user: req.user.id });
 
-    if (!driver || !driver.isApproved) {
-      return res.status(403).json({ message: "Driver access denied" });
-    }
-
-    req.driver = driver;
-    next();
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 
 // HOTEL ACCESS
 export const requireHotel = async (req, res, next) => {

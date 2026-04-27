@@ -13,5 +13,6 @@ router.post(
   createHotel
 );
 
+router.get('/', getHotels);
 
 export default router;

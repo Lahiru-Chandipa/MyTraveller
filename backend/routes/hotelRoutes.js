@@ -3,7 +3,6 @@ import { createHotel, getHotels } from '../controllers/hotelController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import upload from '../utils/upload.js';
 
-const router = express.Router();
 
 // APPLY AS HOTEL
 router.post(
